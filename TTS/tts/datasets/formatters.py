@@ -4,6 +4,7 @@ import xml.etree.ElementTree as ET
 from glob import glob
 from pathlib import Path
 from typing import List
+import json
 
 import pandas as pd
 from tqdm import tqdm
@@ -200,6 +201,21 @@ def ljspeech(root_path, meta_file, **kwargs):  # pylint: disable=unused-argument
             wav_file = os.path.join(root_path, "wavs", cols[0] + ".wav")
             text = cols[2]
             items.append({"text": text, "audio_file": wav_file, "speaker_name": speaker_name, "root_path": root_path})
+    return items
+
+def apple(root_path, meta_file, **kwargs):  # pylint: disable=unused-argument
+    """for f in **/*.caf; do; ffmpeg -i $f ${f%.*}.wav; done && rm **/*.caf"""
+    txt_file = os.path.join(root_path, meta_file)
+    items = []
+    speaker_name = "apple"
+    with open(txt_file, "r", encoding="utf-8") as ttf:
+        for line in ttf:
+            metadata = json.loads(line)
+            filename = metadata['utterance_name']
+            print(filename)
+            wav_file = os.path.join(root_path, filename + ".wav")
+            print(wav_file)
+            items.append({"text": metadata['words'], "audio_file": wav_file, "speaker_name": speaker_name, "root_path": root_path})
     return items
 
 
